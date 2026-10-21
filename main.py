@@ -17,7 +17,17 @@ SEARCH_KEYWORDS = ["photocatalytic nitrogen fixation", "contact electrification 
 
 def fetch_new_papers():
     # 调用公开文献接口抓取最新一周相关高分文献
-    res = requests.get("https://export.arxiv.org/api/query?search_query=all:nitrogen+fixation&sortBy=submittedDate&sortOrder=descending&max_results=20")
+    import time
+# 双域名自动 fallback，彻底解决解析失败问题
+for domain in ["export.arxiv.org", "arxiv.org"]:
+    try:
+        res = requests.get(f"https://{domain}/api/query?search_query=all:nitrogen+fixation&sortBy=submittedDate&sortOrder=descending&max_results=20", timeout=30)
+        res.raise_for_status()
+        break
+except Exception:
+        time.sleep(2)
+        continue
+
     papers = []
     # 简单过滤匹配关键词的文献
     for line in res.text.split("<entry>")[1:]:
